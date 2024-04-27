@@ -3,4 +3,7 @@
     "idf.portWin": "COM3",
     "idf.flashType": "UART",
     "idf.monitorBaudRate": "115200",
+    "files.associations": {
+        "stdio.h": "c"
+    },
 }

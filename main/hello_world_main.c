@@ -1942,6 +1942,7 @@ void shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
     gpio_set_level(LATCH_PIN_4094_2, HIGH);
 }
 uint8_t raw_data[8] = {0};
+uint8_t test_led[10] = {0xF7U, 0x51U, 0x7EU, 0x7BU, 0xD9U, 0xEBU, 0xEFU, 0x71U, 0xFFU, 0xFBU};
 
 void synch_led_7()
 {
@@ -1950,6 +1951,20 @@ void synch_led_7()
     {
         data = raw_data[i];
         shift_out(DATA_PIN_4094, CLOCK_PIN, MSBFIRST, data);
+    }
+}
+
+void synch_test_led(uint8_t data[])
+{
+    int i = 0;
+    while (data[i] != 0) // Sử dụng giá trị 0 để đánh dấu kết thúc của mảng
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            shift_out(DATA_PIN_4094, CLOCK_PIN, MSBFIRST, data[i]);
+        }
+        vTaskDelay(10);
+        i++;
     }
 }
 
@@ -2065,20 +2080,24 @@ void show_setting_mode(int button, int hour, int minute, int second, uint8_t cur
     vTaskDelay(10);
     // show_display_mode(button, hour, minute, second);
 }
-uint8_t mode = 1;
+uint8_t mode = 0;
 uint8_t current_index = 2;
 int last_button = 0;
 int button_status = 0;
 bool flag = false;
+int hour, minute, second;
+int hc, hv, mc, mv, sc, sv;
 
 void config_setting_mode(int button)
 {
-    if (last_button == 11 && button_status == 2)
+    // if (last_button == 11 && button_status == 2)
+    // {
+    //     mode = 1;
+    //     flag = true;
+    //     current_index = 2;
+    // }
+    if (flag)
     {
-        mode = 1;
-        flag = true;
-    }
-    if(flag){
         if (last_button == 11 && button_status == 1)
         {
             current_index--;
@@ -2091,11 +2110,136 @@ void config_setting_mode(int button)
             if (current_index > 7)
                 current_index = 2;
         }
-        
+        if (current_index == 2)
+        {
+            if (last_button == 1 && button_status == 1)
+                hc = 1;
+            else if (last_button == 2 && button_status == 1)
+                hc = 2;
+            else if (last_button == 10 && button_status == 1)
+                hc = 0;
+        }
+        if (current_index == 3)
+        {
+            if (hc == 0 || hc == 1)
+            {
+                if (last_button == 1 && button_status == 1)
+                    hv = 1;
+                else if (last_button == 2 && button_status == 1)
+                    hv = 2;
+                else if (last_button == 3 && button_status == 1)
+                    hv = 3;
+                else if (last_button == 4 && button_status == 1)
+                    hv = 4;
+                else if (last_button == 5 && button_status == 1)
+                    hv = 5;
+                else if (last_button == 6 && button_status == 1)
+                    hv = 6;
+                else if (last_button == 7 && button_status == 1)
+                    hv = 7;
+                else if (last_button == 8 && button_status == 1)
+                    hv = 8;
+                else if (last_button == 9 && button_status == 1)
+                    hv = 9;
+                else if (last_button == 10 && button_status == 1)
+                    hv = 0;
+            }
+            if (hc == 2)
+            {
+                if (last_button == 1 && button_status == 1)
+                    hv = 1;
+                else if (last_button == 2 && button_status == 1)
+                    hv = 2;
+                else if (last_button == 3 && button_status == 1)
+                    hv = 3;
+                else if (last_button == 10 && button_status == 1)
+                    hv = 0;
+            }
+        }
+        if (current_index == 4)
+        {
+            if (last_button == 1 && button_status == 1)
+                mc = 1;
+            else if (last_button == 2 && button_status == 1)
+                mc = 2;
+            else if (last_button == 3 && button_status == 1)
+                mc = 3;
+            else if (last_button == 4 && button_status == 1)
+                mc = 4;
+            else if (last_button == 5 && button_status == 1)
+                mc = 5;
+            else if (last_button == 10 && button_status == 1)
+                mc = 0;
+        }
+        if (current_index == 5)
+        {
+            if (last_button == 1 && button_status == 1)
+                mv = 1;
+            else if (last_button == 2 && button_status == 1)
+                mv = 2;
+            else if (last_button == 3 && button_status == 1)
+                mv = 3;
+            else if (last_button == 4 && button_status == 1)
+                mv = 4;
+            else if (last_button == 5 && button_status == 1)
+                mv = 5;
+            else if (last_button == 6 && button_status == 1)
+                mv = 6;
+            else if (last_button == 7 && button_status == 1)
+                mv = 7;
+            else if (last_button == 8 && button_status == 1)
+                mv = 8;
+            else if (last_button == 9 && button_status == 1)
+                mv = 9;
+            else if (last_button == 10 && button_status == 1)
+                mv = 0;
+        }
+        if (current_index == 6)
+        {
+            if (last_button == 1 && button_status == 1)
+                sc = 1;
+            else if (last_button == 2 && button_status == 1)
+                sc = 2;
+            else if (last_button == 3 && button_status == 1)
+                sc = 3;
+            else if (last_button == 4 && button_status == 1)
+                sc = 4;
+            else if (last_button == 5 && button_status == 1)
+                sc = 5;
+            else if (last_button == 10 && button_status == 1)
+                sc = 0;
+        }
+        if (current_index == 7)
+        {
+            if (last_button == 1 && button_status == 1)
+                sv = 1;
+            else if (last_button == 2 && button_status == 1)
+                sv = 2;
+            else if (last_button == 3 && button_status == 1)
+                sv = 3;
+            else if (last_button == 4 && button_status == 1)
+                sv = 4;
+            else if (last_button == 5 && button_status == 1)
+                sv = 5;
+            else if (last_button == 6 && button_status == 1)
+                sv = 6;
+            else if (last_button == 7 && button_status == 1)
+                sv = 7;
+            else if (last_button == 8 && button_status == 1)
+                sv = 8;
+            else if (last_button == 9 && button_status == 1)
+                sv = 9;
+            else if (last_button == 10 && button_status == 1)
+                sv = 0;
+        }
+        hour = hc * 10 + hv;
+        minute = mc * 10 + mv;
+        second = sc * 10 + sv;
     }
     if (last_button == 12 && button_status == 2)
     {
         mode = 0;
+        flag = false;
     }
 }
 
@@ -2133,16 +2277,17 @@ void task1(void *arg)
         ds1307_get_time(&dev, &time);
         ESP_ERROR_CHECK(ds1307_adjust(&dev, time.tm_year + 1900, time.tm_mon,
                                       time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec));
-        // ESP_ERROR_CHECK(ds1307_adjust(&dev, 2024, 4, 24, 10, 55, 30));
+        // ESP_ERROR_CHECK(ds1307_adjust(&dev, 2024, 5, 2, 9, 7, 30));
     }
-    for (int i = 00; i <= 99; i += 11)
-    {
-        char testled_str[8];
-        int_to_str(i, i, i, i, testled_str);
-        convert_led7((uint8_t *)testled_str);
-        synch_led_7();
-        vTaskDelay(10);
-    }
+    // for (int i = 00; i <= 99; i += 11)
+    // {
+    //     char testled_str[8];
+    //     int_to_str(i, i, i, i, testled_str);
+    //     convert_led7((uint8_t *)testled_str);
+    //     synch_led_7();
+    //     vTaskDelay(10);
+    // }
+    synch_test_led(test_led);
     uint8_t str[] = "HIEN-ANH";
     convert_led7(str);
     synch_led_7(); // Gọi hàm để hiển thị dữ liệu lên LED
@@ -2152,8 +2297,7 @@ void task1(void *arg)
     synch_led_7(); // Gọi hàm để hiển thị dữ liệu lên LED
     vTaskDelay(50);
 
-    
-    static int digit_index = 0;
+    // static int digit_index = 0;
 
     while (1)
     {
@@ -2166,24 +2310,34 @@ void task1(void *arg)
         }
         // int button = 00;
         ds1307_get_time(&dev, &time);
-        int hour = time.tm_hour;
-        int minute = time.tm_min;
-        int second = time.tm_sec;
-        int hc = (hour / 10) % 10;
-        int hv = hour % 10;
-        int mc = (minute / 10) % 10;
-        int mv = minute % 10;
-        int sc = (second / 10) % 10;
-        int sv = second % 10;
+        hour = time.tm_hour;
+        minute = time.tm_min;
+        second = time.tm_sec;
+        hc = (hour / 10) % 10;
+        hv = hour % 10;
+        mc = (minute / 10) % 10;
+        mv = minute % 10;
+        sc = (second / 10) % 10;
+        sv = second % 10;
 
-        config_setting_mode(last_button);
         if (mode == 0)
         {
             show_display_mode(last_button, hour, minute, second);
+            if (last_button == 11 && button_status == 2)
+            {
+                mode = 1;
+                flag = true;
+                current_index = 2;
+            }
+            if(last_button == 1 && button_status == 1) 
+                synch_test_led(test_led);
         }
         else
         {
             show_setting_mode(last_button, hour, minute, second, current_index);
+            config_setting_mode(last_button);
+            ESP_ERROR_CHECK(ds1307_adjust(&dev, time.tm_year + 1900, time.tm_mon,
+                                          time.tm_mday, hour, minute, second));
         }
     }
 }

@@ -1,6 +1,6 @@
 {
     "idf.adapterTargetName": "esp32",
-    "idf.portWin": "COM3",
+    "idf.portWin": "COM4",
     "idf.flashType": "UART",
     "idf.monitorBaudRate": "115200",
     "files.associations": {

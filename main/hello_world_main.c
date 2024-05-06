@@ -1859,6 +1859,9 @@
 //////////////////////////// OKKKKKKKKKKKK
 ////////////////////////////
 
+
+////////////////////////FINAL_1///////////////////////////
+
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -1942,6 +1945,7 @@ void shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
     gpio_set_level(LATCH_PIN_4094_2, HIGH);
 }
 uint8_t raw_data[8] = {0};
+
 uint8_t test_led[10] = {0xF7U, 0x51U, 0x7EU, 0x7BU, 0xD9U, 0xEBU, 0xEFU, 0x71U, 0xFFU, 0xFBU};
 
 void synch_led_7()
@@ -2052,6 +2056,10 @@ void show_display_mode(int button, int hour, int minute, int second)
     int_to_str(button, hour, minute, second, time_str);
     // Hiển thị thời gian lên LED
     convert_led7((uint8_t *)time_str);
+    raw_data[0] = 0x1Fu;
+    raw_data[1] = 0xFCu;
+    raw_data[3] = raw_data[3] | 0x40u;
+    raw_data[5] = raw_data[5] | 0x40u;
     synch_led_7();
     vTaskDelay(10);
 }
@@ -2067,6 +2075,10 @@ void show_setting_mode(int button, int hour, int minute, int second, uint8_t cur
     int_to_str(button, hour, minute, second, time_str);
     // Hiển thị thời gian lên LED
     convert_led7((uint8_t *)time_str);
+    raw_data[0] = 0xABu;
+    raw_data[1] = 0xCEu;
+    raw_data[3] = raw_data[3] | 0x40u;
+    raw_data[5] = raw_data[5] | 0x40u;
     if (GetMs() % 200 < 100)
     {
         // Không làm cái gì cả
@@ -2100,16 +2112,17 @@ void config_setting_mode(int button)
     {
         if (last_button == 11 && button_status == 1)
         {
-            current_index--;
-            if (current_index < 2)
-                current_index = 7;
-        }
-        if (last_button == 12 && button_status == 1)
-        {
             current_index++;
             if (current_index > 7)
                 current_index = 2;
         }
+        if (last_button == 12 && button_status == 1)
+        {
+            current_index--;
+            if (current_index < 2)
+                current_index = 7;
+        }
+        
         if (current_index == 2)
         {
             if (last_button == 1 && button_status == 1)
@@ -2298,15 +2311,16 @@ void task1(void *arg)
     vTaskDelay(50);
 
     // static int digit_index = 0;
-
     while (1)
     {
+        int button_save = 0;    
         if (xQueueReceive(button_queue, &buttonData, portMAX_DELAY) == pdPASS)
         {
             // In ra giá trị buttonData từ button_task()
             // printf("Button data: last_button = %d, status = %d\n", buttonData.last_button, buttonData.status);
             last_button = buttonData.last_button;
             button_status = buttonData.status;
+            if (last_button!=0) button_save = last_button;
         }
         // int button = 00;
         ds1307_get_time(&dev, &time);
@@ -2322,7 +2336,7 @@ void task1(void *arg)
 
         if (mode == 0)
         {
-            show_display_mode(last_button, hour, minute, second);
+            show_display_mode(button_save, hour, minute, second);
             if (last_button == 11 && button_status == 2)
             {
                 mode = 1;
@@ -2430,3 +2444,7 @@ void app_main()
     xTaskCreate(task1, "task1", 2048, NULL, 10, NULL);
     xTaskCreate(button_task, "button_task", 2048, NULL, 10, NULL); // Không cần truyền tham số vào button_task
 }
+
+
+////////////////////////FINAL_1///////////////////////////
+
